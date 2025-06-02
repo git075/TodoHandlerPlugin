@@ -1,0 +1,45 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>dev.anurag.TodoHandlerPlugin</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>TodoHandlerPlugin</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor email="anuragchoudhary9929@gmail.com" url="https://www.yourcompany.com">Anurag Ghosliya</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+    <description>
+        <![CDATA[
+         When you open IntelliJ and load a Kotlin file, your plugin adds a ToolWindow on the right side of the IDE.<br>
+         This ToolWindow scans the current file for TODO comments, highlights them in the editor, and lists them in a panel.<br>
+         Clicking a TODO in the panel scrolls you to that line in the editor.
+        ]]>
+    </description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+
+        <!-- Tool window registration -->
+        <toolWindow id="TODO Viewer"
+                    anchor="right"
+                    factoryClass="dev.anurag.todohandlerplugin.TodoToolWindowFactory"
+                    icon="/icons/pluginIcon.svg"
+                    secondary="true"/>
+        <projectService serviceImplementation="dev.anurag.todohandlerplugin.service.TodoStateService"/>
+        <applicationService serviceImplementation="dev.anurag.todohandlerplugin.service.TodoStateService"/>
+
+    </extensions>
+
+
+
+</idea-plugin>
