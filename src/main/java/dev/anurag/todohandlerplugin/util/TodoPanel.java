@@ -88,4 +88,29 @@ public class TodoPanel {
         }
         TodoStateService.getInstance().setTodos(todoTexts);
     }
+    public void updateTodoList(List<TodoScanner.TodoItem> newTodos, Editor newEditor) {
+        this.allTodos = newTodos;
+        saveTodosToState(newTodos);
+
+        // Update the editor reference if you want scrolling to work on selection
+        DefaultListModel<String> model = (DefaultListModel<String>) todoList.getModel();
+        model.clear();
+        for (TodoScanner.TodoItem todo : newTodos) {
+            model.addElement(todo.toString());
+        }
+
+        // Update caret jump behavior for new editor
+        todoList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int index = todoList.getSelectedIndex();
+                if (index >= 0 && index < allTodos.size()) {
+                    int line = allTodos.get(index).line;
+                    int offset = newEditor.getDocument().getLineStartOffset(line);
+                    newEditor.getCaretModel().moveToOffset(offset);
+                    newEditor.getScrollingModel().scrollToCaret(com.intellij.openapi.editor.ScrollType.CENTER);
+                }
+            }
+        });
+    }
+
 }

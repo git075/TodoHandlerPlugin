@@ -3,6 +3,8 @@ package dev.anurag.todohandlerplugin;
 
 
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
@@ -15,6 +17,7 @@ import dev.anurag.todohandlerplugin.highlighter.TodoHighlighter;
 import dev.anurag.todohandlerplugin.util.TodoPanel;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TodoToolWindowFactory implements ToolWindowFactory {
@@ -23,16 +26,27 @@ public class TodoToolWindowFactory implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
-        if (editor == null) return;
-
-        Document document = editor.getDocument();
-        List<TodoScanner.TodoItem> todos = TodoScanner.scan(document);
-
-        highlighter.highlightTodos(editor, todos);
+        List<TodoScanner.TodoItem> todos = editor != null ? TodoScanner.scan(editor.getDocument()) : new ArrayList<>();
 
         TodoPanel todoPanel = new TodoPanel(project, editor, todos);
-        Content content = ApplicationManager.getApplication().getService(ContentFactory.class).createContent(todoPanel.getPanel(), "", false);
-       // ContentFactory content = ContentFactory
+
+        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+        Content content = contentFactory.createContent(todoPanel.getPanel(), "", false);
         toolWindow.getContentManager().addContent(content);
+
+        //  Listen for file change
+        project.getMessageBus()
+                .connect()
+                .subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener() {
+                    @Override
+                    public void selectionChanged(@NotNull FileEditorManagerEvent event) {
+                        Editor newEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
+                        if (newEditor != null) {
+                            List<TodoScanner.TodoItem> newTodos = TodoScanner.scan(newEditor.getDocument());
+                            todoPanel.updateTodoList(newTodos, newEditor); // You'll create this method
+                        }
+                    }
+                });
     }
+
 }
