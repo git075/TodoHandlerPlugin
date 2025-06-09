@@ -34,7 +34,7 @@ public class TodoToolWindowFactory implements ToolWindowFactory {
         Content content = contentFactory.createContent(todoPanel.getPanel(), "", false);
         toolWindow.getContentManager().addContent(content);
 
-        //  Listen for file change
+
         project.getMessageBus()
                 .connect()
                 .subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener() {
@@ -43,7 +43,7 @@ public class TodoToolWindowFactory implements ToolWindowFactory {
                         Editor newEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
                         if (newEditor != null) {
                             List<TodoScanner.TodoItem> newTodos = TodoScanner.scan(newEditor.getDocument());
-                            todoPanel.updateTodoList(newTodos, newEditor); // You'll create this method
+                            todoPanel.updateTodoList(newTodos, newEditor);
                         }
                     }
                 });

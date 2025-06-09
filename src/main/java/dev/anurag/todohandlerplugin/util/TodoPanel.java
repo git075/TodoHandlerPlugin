@@ -26,11 +26,11 @@ public class TodoPanel {
         panel = new JPanel(new BorderLayout());
         DefaultListModel<String> model = new DefaultListModel<>();
 
-        // Store and persist todos
+
         this.allTodos = todos;
         saveTodosToState(todos);
 
-        // Top filter bar
+
         searchField = new JTextField();
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { filterTodos(model); }
@@ -38,7 +38,7 @@ public class TodoPanel {
             public void changedUpdate(DocumentEvent e) { filterTodos(model); }
         });
 
-        // Initial load
+
         for (TodoScanner.TodoItem todo : todos) {
             model.addElement(todo.toString());
         }
@@ -51,7 +51,7 @@ public class TodoPanel {
         topPanel.add(searchField, BorderLayout.CENTER);
         panel.add(topPanel, BorderLayout.NORTH);
 
-        // List selection logic
+
         todoList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int index = todoList.getSelectedIndex();
@@ -92,7 +92,7 @@ public class TodoPanel {
         this.allTodos = newTodos;
         saveTodosToState(newTodos);
 
-        // Update the editor reference if you want scrolling to work on selection
+
         DefaultListModel<String> model = (DefaultListModel<String>) todoList.getModel();
         model.clear();
         for (TodoScanner.TodoItem todo : newTodos) {
