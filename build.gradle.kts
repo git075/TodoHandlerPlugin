@@ -1,13 +1,22 @@
 plugins {
     id("java")
-    id("org.jetbrains.intellij") version "1.8.0"
+    id("org.jetbrains.intellij") version "1.13.3"
 }
+//1.8.0
 
 group = "dev.anurag"
 version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+}
+dependencies {
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("org.json:json:20240303")
+}
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 // Configure Gradle IntelliJ Plugin

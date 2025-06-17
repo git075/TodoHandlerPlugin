@@ -1,11 +1,10 @@
 package dev.anurag.todohandlerplugin.util;
 
-
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import dev.anurag.todohandlerplugin.TodoScanner;
+import dev.anurag.todohandlerplugin.service.AIService;
 import dev.anurag.todohandlerplugin.service.TodoStateService;
-
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -26,10 +25,8 @@ public class TodoPanel {
         panel = new JPanel(new BorderLayout());
         DefaultListModel<String> model = new DefaultListModel<>();
 
-
         this.allTodos = todos;
         saveTodosToState(todos);
-
 
         searchField = new JTextField();
         searchField.getDocument().addDocumentListener(new DocumentListener() {
@@ -38,19 +35,48 @@ public class TodoPanel {
             public void changedUpdate(DocumentEvent e) { filterTodos(model); }
         });
 
-
         for (TodoScanner.TodoItem todo : todos) {
             model.addElement(todo.toString());
         }
 
         todoList = new JList<>(model);
-        panel.add(new JScrollPane(todoList), BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(todoList);
+
+        // AI Suggestion Button
+        JButton aiButton = new JButton("Get AI Suggestion");
+        aiButton.addActionListener(e -> {
+            int index = todoList.getSelectedIndex();
+            if (index < 0 || index >= allTodos.size()) {
+                JOptionPane.showMessageDialog(panel, "Please select a TODO item.");
+                return;
+            }
+
+            String selectedTodo = allTodos.get(index).text;
+            String fullCode = editor.getDocument().getText();
+
+            AIService.fetchSuggestion(selectedTodo, fullCode, suggestion -> {
+                JTextArea suggestionArea = new JTextArea(suggestion);
+                suggestionArea.setWrapStyleWord(true);
+                suggestionArea.setLineWrap(true);
+                suggestionArea.setEditable(false);
+
+                JScrollPane suggestionScroll = new JScrollPane(suggestionArea);
+                suggestionScroll.setPreferredSize(new Dimension(500, 300));
+
+                JOptionPane.showMessageDialog(panel, suggestionScroll, "AI Suggestion", JOptionPane.INFORMATION_MESSAGE);
+            });
+        });
 
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(new JLabel(" Filter: "), BorderLayout.WEST);
         topPanel.add(searchField, BorderLayout.CENTER);
-        panel.add(topPanel, BorderLayout.NORTH);
 
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.add(aiButton);
+
+        panel.add(topPanel, BorderLayout.NORTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(bottomPanel, BorderLayout.SOUTH);
 
         todoList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -69,11 +95,9 @@ public class TodoPanel {
         return panel;
     }
 
-
     private void filterTodos(DefaultListModel<String> model) {
         String keyword = searchField.getText().trim().toLowerCase();
         model.clear();
-
         for (TodoScanner.TodoItem todo : allTodos) {
             if (todo.text.toLowerCase().contains(keyword)) {
                 model.addElement(todo.toString());
@@ -88,10 +112,10 @@ public class TodoPanel {
         }
         TodoStateService.getInstance().setTodos(todoTexts);
     }
+
     public void updateTodoList(List<TodoScanner.TodoItem> newTodos, Editor newEditor) {
         this.allTodos = newTodos;
         saveTodosToState(newTodos);
-
 
         DefaultListModel<String> model = (DefaultListModel<String>) todoList.getModel();
         model.clear();
@@ -99,7 +123,6 @@ public class TodoPanel {
             model.addElement(todo.toString());
         }
 
-        // Update caret jump behavior for new editor
         todoList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int index = todoList.getSelectedIndex();
@@ -112,5 +135,4 @@ public class TodoPanel {
             }
         });
     }
-
 }
