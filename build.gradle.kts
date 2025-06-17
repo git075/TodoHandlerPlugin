@@ -50,3 +50,9 @@ tasks {
         token.set(System.getenv("PUBLISH_TOKEN"))
     }
 }
+tasks {
+    withType<org.jetbrains.intellij.tasks.InstrumentCodeTask> {
+        enabled = false
+    }
+}
+
